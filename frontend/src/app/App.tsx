@@ -5,6 +5,7 @@ import { DataState, InlineNotice } from "../components/ui/DataState";
 import { AuditPage } from "../features/audit/AuditPage";
 import { useAuth } from "../features/auth/AuthContext";
 import { LoginPage } from "../features/auth/LoginPage";
+import { LandingPage } from "../features/landing/LandingPage";
 import { DashboardPage } from "../features/dashboard/DashboardPage";
 import { InventoryPage } from "../features/inventory/InventoryPage";
 import { OrdersPage } from "../features/orders/OrdersPage";
@@ -174,8 +175,15 @@ function AuthorizedApp() {
 
 export function App() {
   const { status } = useAuth();
+  const [showLanding, setShowLanding] = useState(true);
+
   if (status === "checking") {
     return <main className="loginPage"><div className="statePanel"><LoaderCircle className="spin" size={28} /><strong>Checking your secure session…</strong></div></main>;
   }
+
+  if (status === "unauthenticated" && showLanding) {
+    return <LandingPage onSignIn={() => setShowLanding(false)} />;
+  }
+
   return status === "authenticated" ? <AuthorizedApp /> : <LoginPage />;
 }
