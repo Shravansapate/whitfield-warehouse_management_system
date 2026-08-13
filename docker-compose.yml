@@ -1,0 +1,74 @@
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: whitfield_wms
+      POSTGRES_USER: wms_app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env file}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wms_app -d whitfield_wms"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  migrate:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      DATABASE_URL: postgresql+asyncpg://wms_app:${POSTGRES_PASSWORD}@db:5432/whitfield_wms
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["python", "-m", "alembic", "-c", "backend/alembic.ini", "upgrade", "head"]
+
+  seed:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      ENVIRONMENT: development
+      DATABASE_URL: postgresql+asyncpg://wms_app:${POSTGRES_PASSWORD}@db:5432/whitfield_wms
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      SEED_OWNER_EMAIL: ${SEED_OWNER_EMAIL:-owner@example.com}
+      SEED_OWNER_PASSWORD: ${SEED_OWNER_PASSWORD:?Set SEED_OWNER_PASSWORD in the root .env file}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: ["python", "-m", "backend.seed", "--environment", "development", "--demo"]
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      ENVIRONMENT: development
+      DATABASE_URL: postgresql+asyncpg://wms_app:${POSTGRES_PASSWORD}@db:5432/whitfield_wms
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      CORS_ORIGINS: http://127.0.0.1:5173,http://localhost:5173,http://localhost:8080
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/ready')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+
+volumes:
+  postgres_data:

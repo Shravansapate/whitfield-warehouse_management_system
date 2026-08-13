@@ -1,0 +1,17 @@
+.git/
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+build/
+.vite/
+.cache/
+coverage/
+playwright-report/
+test-results/
+*.log
+npm-debug.log*
+.DS_Store
+.idea/
+.vscode/
