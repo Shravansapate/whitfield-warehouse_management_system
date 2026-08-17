@@ -138,11 +138,8 @@ export function LandingPage({ onSignIn }: { onSignIn: () => void }) {
 
           <div className="hero-cta">
             <button className="btn btn-primary" onClick={onSignIn}>
-              <span>Get Started</span>
+              <span>Enter Warehouse Hub</span>
               <ArrowRight size={18} />
-            </button>
-            <button className="btn btn-secondary">
-              <span>View Demo</span>
             </button>
           </div>
 

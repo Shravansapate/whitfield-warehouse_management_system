@@ -145,17 +145,20 @@ async def ensure_demo_data(
 
     hashed_pw = hash_password(password)
 
-    # Ensure all demo user accounts exist and have active passwords
-    all_demo_users = [
-        ("Dan Whitfield", "owner@example.com", UserRole.OWNER),
-        ("Dan Whitfield (Admin)", "admin@whitfieldwms.com", UserRole.OWNER),
-        ("Maya Patel", "manager@example.com", UserRole.MANAGER),
-        ("Jon Reed", "trusted@example.com", UserRole.TRUSTED),
-        ("Ari Lane", "staff@example.com", UserRole.STAFF),
+    # Ensure all demo user accounts exist and have active passwords for BOTH warehouses
+    all_demo_users: list[tuple[str, str, UserRole, str | None]] = [
+        ("Dan Whitfield", "owner@example.com", UserRole.OWNER, None),
+        ("Dan Whitfield (Admin)", "admin@whitfieldwms.com", UserRole.OWNER, None),
+        ("Maya Patel (Reno Manager)", "manager@example.com", UserRole.MANAGER, "RNO"),
+        ("Carlos Gomez (Columbus Manager)", "manager.columbus@example.com", UserRole.MANAGER, "CMH"),
+        ("Jon Reed (Reno Trusted)", "trusted@example.com", UserRole.TRUSTED, "RNO"),
+        ("Elena Vance (Columbus Trusted)", "trusted.columbus@example.com", UserRole.TRUSTED, "CMH"),
+        ("Ari Lane (Reno Staff)", "staff@example.com", UserRole.STAFF, "RNO"),
+        ("Marcus Brody (Columbus Staff)", "staff.columbus@example.com", UserRole.STAFF, "CMH"),
     ]
     
     owner = None
-    for name, user_email, role in all_demo_users:
+    for name, user_email, role, wh_code in all_demo_users:
         norm_email = normalize_email(user_email)
         user = (
             await session.execute(select(User).where(User.email == norm_email))
@@ -178,7 +181,8 @@ async def ensure_demo_data(
         if role == UserRole.OWNER and owner is None:
             owner = user
 
-        if role != UserRole.OWNER:
+        if wh_code is not None:
+            target_wh = warehouses[wh_code]
             assignment = (
                 await session.execute(
                     select(UserWarehouseAssignment).where(
@@ -190,11 +194,13 @@ async def ensure_demo_data(
             if assignment is None:
                 session.add(
                     UserWarehouseAssignment(
-                        user_id=user.id, warehouse_id=warehouses["RNO"].id
+                        user_id=user.id, warehouse_id=target_wh.id
                     )
                 )
+            elif assignment.warehouse_id != target_wh.id:
+                assignment.warehouse_id = target_wh.id
 
-    for warehouse_code, multiplier in (("RNO", 1.0), ("CMH", 0.7)):
+    for warehouse_code, multiplier in (("RNO", 1.0), ("CMH", 1.0)):
         warehouse = warehouses[warehouse_code]
         for row in DEMO_PRODUCTS:
             product = (
@@ -255,7 +261,7 @@ async def ensure_demo_data(
                         reserved_delta=0,
                         reference_type="development_seed",
                         reference_id=movement_id,
-                        actor_user_id=owner.id,
+                        actor_user_id=owner.id if owner else user.id,
                         source=AuditSource.SYSTEM,
                         reason="Verified development demonstration opening balance",
                         on_hand_after=quantity,
@@ -264,7 +270,7 @@ async def ensure_demo_data(
                 )
                 session.add(
                     AuditLog(
-                        actor_user_id=owner.id,
+                        actor_user_id=owner.id if owner else user.id,
                         warehouse_id=warehouse.id,
                         table_name="inventory_balances",
                         record_id=balance.id,
@@ -280,31 +286,37 @@ async def ensure_demo_data(
                 )
 
     # ----------------------------------------------------------------------
-    # Demo Outbound Order (ORD-DEMO-001)
+    # Demo Outbound Orders (for BOTH Reno and Columbus)
     # ----------------------------------------------------------------------
-    demo_order = (
+    lock_prod = (
         await session.execute(
-            select(Order).where(Order.external_reference == "ORD-DEMO-001")
+            select(Product).where(Product.sku == "WF-LOCK-114")
         )
     ).scalar_one_or_none()
-    if demo_order is None:
-        reno_wh = warehouses["RNO"]
-        lock_prod = (
+    cam_prod = (
+        await session.execute(
+            select(Product).where(Product.sku == "WF-CAM-212")
+        )
+    ).scalar_one_or_none()
+    hub_prod = (
+        await session.execute(
+            select(Product).where(Product.sku == "WF-HUB-040")
+        )
+    ).scalar_one_or_none()
+
+    for wh_code, order_ref in (("RNO", "ORD-RNO-001"), ("CMH", "ORD-CMH-001")):
+        target_wh = warehouses[wh_code]
+        existing_order = (
             await session.execute(
-                select(Product).where(Product.sku == "WF-LOCK-114")
+                select(Order).where(Order.external_reference == order_ref)
             )
         ).scalar_one_or_none()
-        cam_prod = (
-            await session.execute(
-                select(Product).where(Product.sku == "WF-CAM-212")
-            )
-        ).scalar_one_or_none()
-        if lock_prod and cam_prod:
+        if existing_order is None and lock_prod and cam_prod:
             demo_order = Order(
-                external_reference="ORD-DEMO-001",
-                warehouse_id=reno_wh.id,
+                external_reference=order_ref,
+                warehouse_id=target_wh.id,
                 status=OrderStatus.PENDING,
-                created_by=owner.id,
+                created_by=owner.id if owner else user.id,
             )
             session.add(demo_order)
             await session.flush()
@@ -324,30 +336,28 @@ async def ensure_demo_data(
             )
 
     # ----------------------------------------------------------------------
-    # Demo Inbound Receipt (1Z9999999999999999)
+    # Demo Inbound Receipts (for BOTH Reno and Columbus)
     # ----------------------------------------------------------------------
-    demo_receipt = (
-        await session.execute(
-            select(InboundReceipt).where(
-                InboundReceipt.tracking_number == "1Z9999999999999999"
-            )
-        )
-    ).scalar_one_or_none()
-    if demo_receipt is None:
-        reno_wh = warehouses["RNO"]
-        hub_prod = (
+    for wh_code, tracking_no, addr in (
+        ("RNO", "1Z9999999999999999", "100 Logistics Way, Reno, NV 89502"),
+        ("CMH", "1Z8888888888888888", "400 Fulfillment Blvd, Columbus, OH 43219"),
+    ):
+        target_wh = warehouses[wh_code]
+        existing_receipt = (
             await session.execute(
-                select(Product).where(Product.sku == "WF-HUB-040")
+                select(InboundReceipt).where(
+                    InboundReceipt.tracking_number == tracking_no
+                )
             )
         ).scalar_one_or_none()
-        if hub_prod:
+        if existing_receipt is None and hub_prod:
             demo_receipt = InboundReceipt(
-                warehouse_id=reno_wh.id,
-                tracking_number="1Z9999999999999999",
+                warehouse_id=target_wh.id,
+                tracking_number=tracking_no,
                 status=ReceiptStatus.OPEN,
-                sender_name="Acme Security Supply",
-                sender_return_address="100 Logistics Way, Reno, NV 89502",
-                created_by=owner.id,
+                sender_name="Acme Global Supply",
+                sender_return_address=addr,
+                created_by=owner.id if owner else user.id,
             )
             session.add(demo_receipt)
             await session.flush()

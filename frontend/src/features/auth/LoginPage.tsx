@@ -19,53 +19,13 @@ import { useState, type FormEvent } from "react";
 import { useAuth } from "./AuthContext";
 import "./LoginPage.css";
 
-interface DemoAccount {
-  role: string;
-  name: string;
-  email: string;
-  badge: string;
-  description: string;
-}
-
-const DEMO_ACCOUNTS: DemoAccount[] = [
-  {
-    role: "Owner",
-    name: "Dan Whitfield",
-    email: "owner@example.com",
-    badge: "👑 All Warehouses",
-    description: "Full access across Reno & Columbus, audit trail, user admin",
-  },
-  {
-    role: "Manager",
-    name: "Maya Patel",
-    email: "manager@example.com",
-    badge: "🛡️ Reno Manager",
-    description: "Inventory adjustments, picking management, receiving approval",
-  },
-  {
-    role: "Trusted",
-    name: "Jon Reed",
-    email: "trusted@example.com",
-    badge: "⚡ Trusted Staff",
-    description: "Pick/pack workflows, barcode scanning, order label creation",
-  },
-  {
-    role: "Staff",
-    name: "Ari Lane",
-    email: "staff@example.com",
-    badge: "👷 Reno Staff",
-    description: "Inbound receiving scans, picking checklist fulfillment",
-  },
-];
-
 export function LoginPage() {
   const { error, login } = useAuth();
-  const [email, setEmail] = useState("owner@example.com");
-  const [password, setPassword] = useState("sHRAVANSAPATE@123$");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [validation, setValidation] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<string>("Owner");
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -82,13 +42,6 @@ export function LoginPage() {
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const selectDemoAccount = (acc: DemoAccount) => {
-    setActiveTab(acc.role);
-    setEmail(acc.email);
-    setPassword("sHRAVANSAPATE@123$");
-    setValidation(null);
   };
 
   return (
@@ -113,7 +66,7 @@ export function LoginPage() {
 
         <div className="navTelemetry">
           <span className="telemetryPill telemetryPill--live">
-            <span className="pulseDot" /> Live System v2.4
+            <span className="pulseDot" /> Dual-Hub System v2.4
           </span>
           <span className="telemetryPill telemetryPill--db">
             <CheckCircle2 size={13} className="text-emerald" /> PostgreSQL Active
@@ -130,7 +83,7 @@ export function LoginPage() {
         <section className="heroShowcase">
           <div className="heroBadge">
             <Sparkles size={14} />
-            <span>Next-Generation Warehouse Operations</span>
+            <span>Dual-Hub Enterprise Operations</span>
           </div>
 
           <h1 className="heroHeading">
@@ -138,8 +91,8 @@ export function LoginPage() {
           </h1>
 
           <p className="heroDescription">
-            Replace error-prone spreadsheets with automated zero-oversell inventory,
-            sub-second barcode validation, carrier dispatch, and hands-free Gemini Voice AI.
+            Unified logistics across Reno (RNO) and Columbus (CMH) facilities.
+            Automated zero-oversell inventory, sub-second barcode validation, and carrier dispatch.
           </p>
 
           {/* Feature Highlights Cards */}
@@ -191,7 +144,7 @@ export function LoginPage() {
               <span className="nodeDot" />
               <div>
                 <strong>Reno Facility (RNO)</strong>
-                <small>Main West Hub · Live</small>
+                <small>West Coast Hub · Active</small>
               </div>
             </div>
             <div className="nodeDivider" />
@@ -199,15 +152,15 @@ export function LoginPage() {
               <span className="nodeDot" />
               <div>
                 <strong>Columbus Hub (CMH)</strong>
-                <small>Midwest Regional · Live</small>
+                <small>Midwest Regional Hub · Active</small>
               </div>
             </div>
             <div className="nodeDivider" />
             <div className="nodeItem">
               <Activity size={16} className="text-emerald" />
               <div>
-                <strong>310+ Units</strong>
-                <small>Active Balance</small>
+                <strong>Multi-Hub</strong>
+                <small>Balanced Stock</small>
               </div>
             </div>
           </div>
@@ -222,27 +175,7 @@ export function LoginPage() {
               </div>
               <div>
                 <h2 id="signin-heading">Warehouse Sign-In</h2>
-                <p className="authSubtext">Select a demo role or enter your credentials</p>
-              </div>
-            </div>
-
-            {/* 1-Click Demo Accounts Selector */}
-            <div className="demoAccountsWrapper">
-              <div className="demoHeader">
-                <span className="demoTitle">1-Click Fast Login:</span>
-                <span className="demoHint">Auto-fills credentials</span>
-              </div>
-              <div className="demoPillsRow">
-                {DEMO_ACCOUNTS.map((acc) => (
-                  <button
-                    key={acc.role}
-                    type="button"
-                    className={`demoRolePill ${activeTab === acc.role ? "demoRolePill--active" : ""}`}
-                    onClick={() => selectDemoAccount(acc)}
-                  >
-                    <span>{acc.badge}</span>
-                  </button>
-                ))}
+                <p className="authSubtext">Enter your credentials to access your facility hub</p>
               </div>
             </div>
 
