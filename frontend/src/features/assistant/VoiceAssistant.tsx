@@ -29,8 +29,12 @@ interface VoiceAssistantProps {
 type ConnectionState = "connecting" | "ready" | "error" | "closed";
 
 function buildWsUrl(accessToken: string): string {
+  const configuredBaseUrl = (import.meta.env.VITE_WMS_API_BASE_URL as string | undefined) ?? "";
+  if (configuredBaseUrl && configuredBaseUrl.startsWith("http")) {
+    const wsBase = configuredBaseUrl.replace(/^http/, "ws").replace(/\/$/, "");
+    return `${wsBase}/voice/ws?token=${encodeURIComponent(accessToken)}`;
+  }
   const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-  // Direct connection to FastAPI backend on 8000 for reliability in local dev
   const targetHost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
     ? `${window.location.hostname}:8000`
     : window.location.host;
