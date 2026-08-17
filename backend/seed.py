@@ -29,7 +29,7 @@ from backend.core.models.enums import (
 from backend.core.models.inventory import InventoryBalance, InventoryMovement
 from backend.core.models.order import Order, OrderItem
 from backend.core.models.product import Product, WarehouseProductSetting
-from backend.core.models.receiving import InboundReceipt, ReceiptItem
+from backend.core.models.receiving import InboundReceipt, InboundReceiptItem
 from backend.core.models.reliability import AuditLog
 
 WAREHOUSES = (
