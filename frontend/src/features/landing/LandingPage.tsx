@@ -179,16 +179,24 @@ export function LandingPage({ onSignIn }: { onSignIn: () => void }) {
       <section className="features">
         <div className="container">
           <div className="section-header">
-            <h2>Powerful Features</h2>
-            <p>Everything you need to manage modern warehouse operations</p>
+            <h2 style={{ color: "#ffffff", fontWeight: 800, fontSize: "44px", letterSpacing: "-0.01em", textShadow: "0 2px 10px rgba(0,0,0,0.5)", margin: "0 0 12px" }}>
+              Powerful Features
+            </h2>
+            <p style={{ color: "#cbd5e1", fontSize: "18px", margin: 0, fontWeight: 500 }}>
+              Everything you need to manage modern warehouse operations
+            </p>
           </div>
 
           <div className="features-grid">
             {FEATURES.map((feature, i) => (
               <div key={feature.title} className="feature-card" style={{ animationDelay: `${i * 0.1}s` }}>
                 <div className="feature-icon">{feature.icon}</div>
-                <h3>{feature.title}</h3>
-                <p>{feature.description}</p>
+                <h3 style={{ color: "#ffffff", fontSize: "20px", fontWeight: 700, margin: "0 0 12px" }}>
+                  {feature.title}
+                </h3>
+                <p style={{ color: "#cbd5e1", fontSize: "15px", margin: 0, lineHeight: 1.6 }}>
+                  {feature.description}
+                </p>
               </div>
             ))}
           </div>
@@ -201,18 +209,18 @@ export function LandingPage({ onSignIn }: { onSignIn: () => void }) {
           <div className="benefits-grid">
             <div className="benefit-item" style={{ animationDelay: '0s' }}>
               <CheckCircle size={24} className="benefit-icon" />
-              <h3>99.9% Uptime</h3>
-              <p>Enterprise-grade reliability with redundant systems and automatic failover</p>
+              <h3 style={{ color: "#ffffff", fontSize: "22px", fontWeight: 700, margin: "0 0 12px" }}>99.9% Uptime</h3>
+              <p style={{ color: "#cbd5e1", fontSize: "15px", margin: 0, lineHeight: 1.6 }}>Enterprise-grade reliability with redundant systems and automatic failover</p>
             </div>
             <div className="benefit-item" style={{ animationDelay: '0.1s' }}>
               <TrendingUp size={24} className="benefit-icon" />
-              <h3>Real-time Analytics</h3>
-              <p>Live dashboards with actionable insights into warehouse performance</p>
+              <h3 style={{ color: "#ffffff", fontSize: "22px", fontWeight: 700, margin: "0 0 12px" }}>Real-time Analytics</h3>
+              <p style={{ color: "#cbd5e1", fontSize: "15px", margin: 0, lineHeight: 1.6 }}>Live dashboards with actionable insights into warehouse performance</p>
             </div>
             <div className="benefit-item" style={{ animationDelay: '0.2s' }}>
               <Lock size={24} className="benefit-icon" />
-              <h3>Bank-Grade Security</h3>
-              <p>Enterprise security with role-based access and audit logging</p>
+              <h3 style={{ color: "#ffffff", fontSize: "22px", fontWeight: 700, margin: "0 0 12px" }}>Bank-Grade Security</h3>
+              <p style={{ color: "#cbd5e1", fontSize: "15px", margin: 0, lineHeight: 1.6 }}>Enterprise security with role-based access and audit logging</p>
             </div>
           </div>
         </div>
@@ -221,8 +229,8 @@ export function LandingPage({ onSignIn }: { onSignIn: () => void }) {
       {/* CTA Section */}
       <section className="cta-section">
         <div className="cta-content">
-          <h2>Ready to Transform Your Warehouse?</h2>
-          <p>Join leading logistics companies using Whitfield WMS</p>
+          <h2 style={{ color: "#ffffff", fontSize: "42px", fontWeight: 800, margin: "0 0 16px" }}>Ready to Transform Your Warehouse?</h2>
+          <p style={{ color: "#e2e8f0", fontSize: "18px", margin: "0 0 32px" }}>Join leading logistics companies using Whitfield WMS</p>
           <button className="btn btn-primary btn-large" onClick={onSignIn}>
             <span>Start Your Journey</span>
             <ArrowRight size={20} />
@@ -235,28 +243,28 @@ export function LandingPage({ onSignIn }: { onSignIn: () => void }) {
         <div className="container">
           <div className="footer-content">
             <div className="footer-section">
-              <h4>Whitfield WMS</h4>
-              <p>Enterprise warehouse management system for modern fulfillment</p>
+              <h4 style={{ color: "#ffffff", fontSize: "17px", fontWeight: 700, margin: "0 0 16px" }}>Whitfield WMS</h4>
+              <p style={{ color: "#cbd5e1", fontSize: "14px", margin: 0, lineHeight: 1.6 }}>Enterprise warehouse management system for modern fulfillment</p>
             </div>
             <div className="footer-section">
-              <h4>Product</h4>
+              <h4 style={{ color: "#ffffff", fontSize: "17px", fontWeight: 700, margin: "0 0 16px" }}>Product</h4>
               <ul>
-                <li><a href="#features">Features</a></li>
-                <li><a href="#benefits">Benefits</a></li>
-                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#features" style={{ color: "#cbd5e1" }}>Features</a></li>
+                <li><a href="#benefits" style={{ color: "#cbd5e1" }}>Benefits</a></li>
+                <li><a href="#pricing" style={{ color: "#cbd5e1" }}>Pricing</a></li>
               </ul>
             </div>
             <div className="footer-section">
-              <h4>Company</h4>
+              <h4 style={{ color: "#ffffff", fontSize: "17px", fontWeight: 700, margin: "0 0 16px" }}>Company</h4>
               <ul>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
-                <li><a href="#privacy">Privacy</a></li>
+                <li><a href="#about" style={{ color: "#cbd5e1" }}>About</a></li>
+                <li><a href="#contact" style={{ color: "#cbd5e1" }}>Contact</a></li>
+                <li><a href="#privacy" style={{ color: "#cbd5e1" }}>Privacy</a></li>
               </ul>
             </div>
           </div>
           <div className="footer-bottom">
-            <p>&copy; 2024 Whitfield Fulfillment. All rights reserved.</p>
+            <p style={{ color: "#94a3b8", fontSize: "13px" }}>&copy; 2024 Whitfield Fulfillment. All rights reserved.</p>
           </div>
         </div>
       </footer>
