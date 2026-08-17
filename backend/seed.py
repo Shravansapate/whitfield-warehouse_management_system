@@ -307,6 +307,7 @@ async def ensure_demo_data(
                 external_reference="ORD-DEMO-001",
                 warehouse_id=reno_wh.id,
                 status=OrderStatus.PENDING,
+                created_by=owner.id,
             )
             session.add(demo_order)
             await session.flush()
@@ -314,14 +315,14 @@ async def ensure_demo_data(
                 OrderItem(
                     order_id=demo_order.id,
                     product_id=lock_prod.id,
-                    requested_quantity=2,
+                    quantity=2,
                 )
             )
             session.add(
                 OrderItem(
                     order_id=demo_order.id,
                     product_id=cam_prod.id,
-                    requested_quantity=1,
+                    quantity=1,
                 )
             )
 
@@ -347,16 +348,19 @@ async def ensure_demo_data(
                 warehouse_id=reno_wh.id,
                 tracking_number="1Z9999999999999999",
                 status=ReceiptStatus.OPEN,
+                sender_name="Acme Security Supply",
+                sender_return_address="100 Logistics Way, Reno, NV 89502",
+                created_by=owner.id,
             )
             session.add(demo_receipt)
             await session.flush()
             session.add(
-                ReceiptItem(
+                InboundReceiptItem(
                     receipt_id=demo_receipt.id,
                     product_id=hub_prod.id,
-                    received_quantity=10,
-                    accepted_quantity=8,
-                    damaged_quantity=2,
+                    quantity_received=10,
+                    quantity_accepted=8,
+                    quantity_damaged=2,
                     damage_notes="Outer box crushed in transit",
                 )
             )
