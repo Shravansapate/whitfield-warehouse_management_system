@@ -181,7 +181,7 @@ export function App() {
     return <main className="loginPage"><div className="statePanel"><LoaderCircle className="spin" size={28} /><strong>Checking your secure session…</strong></div></main>;
   }
 
-  if (status === "unauthenticated" && showLanding) {
+  if (status === "anonymous" && showLanding) {
     return <LandingPage onSignIn={() => setShowLanding(false)} />;
   }
 
